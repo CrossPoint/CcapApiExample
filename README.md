@@ -7,6 +7,6 @@ The endpoint to which you can connect to the CCAP is: ws://<ccap-ip>:9000/
 
 # How to run
 
-1. Install node.js ([http://nodejs.org/][http://nodejs.org/))
-2. Install grunt ([http://gruntjs.com/getting-started][http://gruntjs.com/getting-started))
+1. Install node.js ([http://nodejs.org/](Instructions))
+2. Install grunt ([http://gruntjs.com/getting-started](Instructions))
 
