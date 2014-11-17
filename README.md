@@ -29,10 +29,11 @@ To build and run this example you need the following tools:
 
 # Run the example
 
-1. Download and install files in this repository.
+1. Download and install files in this repository
 2. Go to your command line to the directory with the repository files
 3. Run 'npm install' to install all node packages
 4. Run 'bower install' to install all bower packages
 5. Modify the ip on the line 'var ip = '192.168.70.144' in the file app/scripts/app.js to match your IP address.
+6. Make sure you have correctly configured entrances in your CCAP
 5. Run 'grunt serve' to run the example
 6. Open your browser and open http://127.0.0.1:9000/ to view the example
