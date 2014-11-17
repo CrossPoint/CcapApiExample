@@ -1,0 +1,49 @@
+<div ng-switch on="state" class="full-height">
+   
+	<div class="alarm-idle-view center-view" ng-switch-default>
+		<div class="center-view-content">
+			<div class="logo">
+				<img src="images/logo_sentech.png" class="img-responsive"/>
+			</div>
+			<div class="date-text text-center">
+				<span class="text-center" my-current-time="'fullDate'">&nbsp;</span>
+				<span class="text-center" my-current-time="'shortTime'">&nbsp;</span>
+			</div>
+		</div>
+	</div>    
+   
+	<div class="alarm-timer-view center-view" ng-switch-when="timing" ng-click="nextState()">
+		<div class="center-view-content">
+			<div>
+				<p class="text-center alarm-text">Alarm</p>
+			</div>
+			<div>
+				<p class="text-center alarm-timer" ng-bind="stateTimeLeft | timestamp">00:00</p>
+			</div>
+			<div>
+				<p class="text-center alarm-tap-text">Tap screen to respond</p>
+			</div>
+		</div>
+	</div>
+	   
+	<div class="alarm-type-view" my-resize-buttons ng-switch-when="choosing">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col col-xs-6" ng-repeat="item in alarmCauses">
+					<button type="button" ng-click="selectCause(item.id)" ng-disabled="alarmCause != null && alarmCause != item.id" 
+					class="btn btn-lg btn-block" ng-class="{ 'btn-custom': alarmCause != item.id, 'btn-pressed': alarmCause == item.id }">
+						<div class="button-center">
+							<p>{{item.text}}</p>
+						</div>
+					</button>
+				</div>			
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<p class="text-center alarm-text-cause">Please select the reason for the alarm</p>
+				</div>
+			</div>
+		</div>	
+	</div>
+
+</div> 
