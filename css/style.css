@@ -1,0 +1,37 @@
+﻿body {
+    min-height: 2000px;
+    padding-top: 70px;
+}
+
+.navbar-image {
+    height: 50px;
+    padding: 13px 0;
+}
+
+.navbar-image img
+{
+    height: 24px;
+}
+
+.navbar-brand {
+    font-size: 18pt;
+    padding: 17px 15px;
+}
+
+canvas {
+    height: 200px;
+}
+
+ul.legend 
+{
+    list-style-type: none;
+}
+
+ul.legend span 
+{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    list
+}

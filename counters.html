@@ -1,0 +1,265 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+
+        <title>CrossCONNECT Access Point API Example</title>
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        
+        <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="lib/highlight/vs.css">
+
+        <script src="lib/common.js"></script>
+        <script src="lib/autobahn.js"></script>
+        <script src="lib/chart.js"></script>
+        <script src="lib/linq.js"></script>
+        <script src="lib/jquery-2.1.1.js"></script>
+        <script src="lib/highlight/highlight.pack.js"></script>
+        <script src="lib/bootstrap/js/bootstrap.js"></script>
+
+        <script type="text/javascript">
+
+            $(function() {
+                var connection;
+                var incomingSerie = [];
+                var outgoingSerie = [];
+
+                console.log('Autobahn version: ' + autobahn.version);
+
+                function showVisitors() {
+                    // Update the chart
+                    updateChart([
+                        {
+                            desc: 'Incoming visitors',
+                            serie: incomingSerie
+                        }, {
+                            desc: 'Outgoing visitors',
+                            serie: outgoingSerie
+                        }
+                    ]);
+                }
+
+                function openConnection(host) {
+                    // Create autobahn websocket connection
+                    connection = new autobahn.Connection({
+                        url: 'ws://' + host + ':9000/',
+                        realm: 'ccap'
+                    });
+
+                    connection.onopen = function(session) {
+                        // Hide error
+                        showError(null);
+
+                        // Set prefix
+                        session.prefix('api', 'com.crosspoint.accesspoint');
+
+                        // Get the counters
+                        session.call('api:getcounters', [
+                            {
+                                resolution: 'hour', // Hour resolution
+                                timebase: 'today', // Counting data of today
+                                countings: [
+                                    {
+                                        counting: [
+                                            {
+                                                group: 0, // Visitors
+                                                type: 0 // Incoming side A
+                                            }, {
+                                                group: 0, // Visitors
+                                                type: 1 // Outgoing side A
+                                            }, {
+                                                group: 0, // Visitors
+                                                type: 2 // Incoming side B
+                                            }, {
+                                                group: 0, // Visitors
+                                                type: 3 // Outgoing side B
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]).then(
+                            function(res) {
+                                var kwargs = res.kwargs;
+                                console.log(kwargs);
+
+                                // Create results array
+                                incomingSerie = [];
+                                Enumerable.Range(0, 23).ForEach(function(r) {
+                                    incomingSerie[r] = 0;
+                                });
+
+                                // Sum all the counting data from all the devices
+                                Enumerable.From(kwargs.period).ForEach(function(p) {
+                                    var hour = new Date(Date.parse(p.timestamp)).getHours();
+                                    incomingSerie[hour] = Enumerable.From(p.device).Select(function(d) {
+                                        if (d.counting) {
+                                            return Enumerable.From(d.counting).Where(function(c) {
+                                                return (c.group == 0 && (c.type == 0 || c.type == 2));
+                                            }).Select(function(c) { return c.value; }).Sum();
+                                        }
+                                        return 0;
+                                    }).Sum();
+                                });
+
+                                // Create results array
+                                outgoingSerie = [];
+                                Enumerable.Range(0, 23).ForEach(function(r) {
+                                    outgoingSerie[r] = 0;
+                                });
+
+                                // Sum all the counting data from all the devices
+                                Enumerable.From(kwargs.period).ForEach(function(p) {
+                                    var hour = new Date(Date.parse(p.timestamp)).getHours();
+                                    outgoingSerie[hour] = Enumerable.From(p.device).Select(function(d) {
+                                        if (d.counting) {
+                                            return Enumerable.From(d.counting).Where(function(c) {
+                                                return (c.group == 0 && (c.type == 1 || c.type == 3));
+                                            }).Select(function(c) { return c.value; }).Sum();
+                                        }
+                                        return 0;
+                                    }).Sum();
+                                });
+
+                                // Update the chart
+                                showVisitors();
+                            },
+                            function(err) {
+                                showError(err.error.toString());
+                            });
+
+                        // Get the counters
+                        session.subscribe('api:counterschanged', function(args) {
+                            console.log(args);
+
+                            var hour = new Date(Date.parse(args.time)).getHours();
+                            incomingSerie[hour] += Enumerable.From(args.counting).Where(function(c) {
+                                return (c.group == 0 && (c.type == 0 || c.type == 2));
+                            }).Select(function(c) {
+                                return c.value;
+                            }).Sum();
+                            outgoingSerie[hour] += Enumerable.From(args.counting).Where(function(c) {
+                                return (c.group == 0 && (c.type == 1 || c.type == 3));
+                            }).Select(function(c) {
+                                return c.value;
+                            }).Sum();
+
+                            // Update the chart
+                            showVisitors();
+                        }).catch(function(err) {
+                            showError(err.error.toString());
+                        });
+
+                    };
+
+                    connection.onclose = function(reason, details) {
+                        var error = 'Autobahn connection closed. Reason: ' + reason;
+                        if (details.message != null) {
+                            error += details.message;
+                        }
+                        showError(error);
+                    };
+
+                    // Open the connection
+                    connection.open();
+                }
+
+                $('#btnConnect').click(function(e) {
+                    // Hide error
+                    showError();
+
+                    // Get host
+                    var host = $('#inputAddress').val();
+                    if (!host) {
+                        showError('Invalid hostname or ip-address');
+                    }
+                    
+                    // Open connection
+                    openConnection(host);
+
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+
+                // Update the chart
+                showVisitors();
+
+                // Show source code
+                showFunctionSource(openConnection, '#srcCode');
+            });
+
+        </script>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <div class="navbar-brand">
+                        CCAP API Example
+                    </div>
+                </div>
+                <div class="navbar-header navbar-right">
+                    <div class="navbar-image">
+                        <img src="img/cross-point-logo.png">
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-danger" id="alertError">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        <span class="text">
+                            Enter the CCAP IP hostname or ip-address in the input form and press connect.
+                        </span>
+                    </div>
+
+                    <h3>
+                        Input data
+                    </h3>
+
+                    <div class="input-group col-sm-6">
+                        <input type="text" class="form-control" placeholder="Ccap IP or hostname" id="inputAddress" value="">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" id="btnConnect">Connect</button>
+                        </span>
+                    </div>
+
+                    <h3>
+                        Description
+                    </h3>
+                    <p>
+                        This example requests the counter values for all devices from the CrossCONNECT Access Point with the call <strong>com.crosspoint.accesspoint.getcounters</strong>. The results are displayed in a graph.
+                    </p>
+                    <p>
+                        Also the events are registered for the <strong>com.crosspoint.accesspoint.counterschanged</strong> event and the new values are added to the graph.
+                    </p>
+                    <p>
+                        Enter the ip-address or hostname of your Access Point in the top bar and press connect to run the example.
+                    </p>
+
+                    <h3>
+                        Results
+                    </h3>
+                    <canvas id="chart" height="75"></canvas>
+                    <div id="legend"></div>
+
+                    <h3>
+                        Source Code
+                    </h3>
+                    <pre>
+                        <code class="javascript" id="srcCode"></code>
+                    </pre>
+                </div>
+            </div>
+
+        </div>
+    </body>
+</html>
