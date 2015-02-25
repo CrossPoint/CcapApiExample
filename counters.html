@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html class="no-js">
     <head>
         <meta charset="utf-8">
@@ -84,7 +84,6 @@
                         ]).then(
                             function(res) {
                                 var kwargs = res.kwargs;
-                                console.log(kwargs);
 
                                 // Create results array
                                 incomingSerie = [];
@@ -132,16 +131,16 @@
                             });
 
                         // Get the counters
-                        session.subscribe('api:counterschanged', function(args) {
-                            console.log(args);
+                        session.subscribe('api:counterschanged', function(args, kwargs) {
 
-                            var hour = new Date(Date.parse(args.time)).getHours();
-                            incomingSerie[hour] += Enumerable.From(args.counting).Where(function(c) {
+                            var hour = new Date(Date.parse(kwargs.time)).getHours();
+
+                            incomingSerie[hour] += Enumerable.From(kwargs.counting).Where(function (c) {
                                 return (c.group == 0 && (c.type == 0 || c.type == 2));
                             }).Select(function(c) {
                                 return c.value;
                             }).Sum();
-                            outgoingSerie[hour] += Enumerable.From(args.counting).Where(function(c) {
+                            outgoingSerie[hour] += Enumerable.From(kwargs.counting).Where(function (c) {
                                 return (c.group == 0 && (c.type == 1 || c.type == 3));
                             }).Select(function(c) {
                                 return c.value;

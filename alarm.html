@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html class="no-js">
     <head>
         <meta charset="utf-8">
@@ -27,22 +27,22 @@
 
                 console.log('Autobahn version: ' + autobahn.version);
 
-				function addAlarm(entrance, alarm) {
-					// Add alarm to the table					
-					var row = $('<tr>');
-					row.append($('<td>').text(alarm.id));
-					row.append($('<td>').text(alarm.deviceType));
-					row.append($('<td>').text(alarm.deviceId));
-					row.append($('<td>').text(entrance == null ? '-' : entrance.id));
-					row.append($('<td>').text(entrance == null ? '-' : entrance.name));
-					row.append($('<td>').text(alarm.direction));
-					row.append($('<td>').text(alarm.side));
-					$('#alarmTable tbody').prepend(row);		
-				}
-		
+                function addAlarm(entrance, alarm) {
+                    // Add alarm to the table                   
+                    var row = $('<tr>');
+                    row.append($('<td>').text(alarm.id));
+                    row.append($('<td>').text(alarm.deviceType));
+                    row.append($('<td>').text(alarm.deviceId));
+                    row.append($('<td>').text(entrance == null ? '-' : entrance.id));
+                    row.append($('<td>').text(entrance == null ? '-' : entrance.name));
+                    row.append($('<td>').text(alarm.direction));
+                    row.append($('<td>').text(alarm.side));
+                    $('#alarmTable tbody').prepend(row);        
+                }
+        
                 function openConnection(host) {
                     var entrances;
-					
+                    
                     // Find the entrance to which a device belongs
                     var findEntrance = function(deviceType, deviceId) {
                         return Enumerable.From(entrances).Where(function(e) {
@@ -51,47 +51,45 @@
                             });
                         }).FirstOrDefault();
                     };
-				
+                
                     // Create autobahn websocket connection
                     connection = new autobahn.Connection({
                         url: 'ws://' + host + ':9000/',
                         realm: 'ccap'
                     });
-					
+                    
                     connection.onopen = function(session) {
                         // Hide error
                         showError(null);
 
                         // Set prefix
                         session.prefix('api', 'com.crosspoint.accesspoint');
-
+                                                
                         // Get the counters
                         session.call('api:getentrances', []).then(
                             function(res) {
                                 var kwargs = res.kwargs;
-
+                                
                                 // Get all the entrances
                                 entrances = Enumerable.From(kwargs.entrance).Select(function(e) {
-                                    var name = e.name;
-                                    var id = e.id;
-									
+                                    
                                     // Get the devices
                                     var devices = Enumerable.From(e.devices[0].device).Select(function(d) {
-									        console.log('Entrance device: ', d);
+                                            console.log('Entrance device: ', d);
                                             return {
                                                 id: d.deviceId,
                                                 type: d.deviceType,
                                             };
                                         }).ToArray();
-										
+                                        
                                     // Return entrance configuration
                                     return {
                                         id: e.id,
                                         name: e.name,
                                         devices: devices
-								    };
+                                    };
                                 }).ToArray();
-									
+                                    
                                 console.log('Entrance definition: ', entrances);
                             },
                             function(err) {
@@ -99,25 +97,29 @@
                             });
 
                         // Register to AM tag detected events
-                        session.subscribe('api:tagdetectedam', function(args) {
+                        session.subscribe('api:tagdetectedam', function (args, kwargs) {
+
                             // Get the entrance
-                            var entrance = findEntrance(args.deviceType, args.deviceId);
-                            console.log('Alarm (AM) on entrance: ', entrance, args);
-							
+                            var entrance = findEntrance(kwargs.deviceType, kwargs.deviceId);
+                            console.log('Alarm (AM) on entrance: ', entrance, kwargs);
+                            
                             // Add the alarm
-                            addAlarm(entrance, args);
+                            addAlarm(entrance, kwargs);
+
                         }).catch(function(err) {
                             showError(err.error.toString());
                         });
-						
-						// Register to RF tag detected events
-                        session.subscribe('api:tagdetectedrf', function(args) {
+                        
+                        // Register to RF tag detected events
+                        session.subscribe('api:tagdetectedrf', function (args, kwargs) {
+
                             // Get the entrance
-                            var entrance = findEntrance(args.deviceType, args.deviceId);
-                            console.log('Alarm (RF) on entrance: ', entrance, args);
-							
+                            var entrance = findEntrance(kwargs.deviceType, kwargs.deviceId);
+                            console.log('Alarm (RF) on entrance: ', entrance, kwargs);
+                            
                             // Add the alarm
-                            addAlarm(entrance, args);
+                            addAlarm(entrance, kwargs);
+
                         }).catch(function(err) {
                             showError(err.error.toString());
                         });
@@ -214,21 +216,21 @@
                         Alarm table
                     </h3>
                     
-					<table id="alarmTable" class="table table-striped">
-						<thead>
-							<tr>
-								<th>Id</th>
-								<th>Device Type</th>
-								<th>Device Id</th>
-								<th>Entrance Id</th>
-								<th>Entrance Name</th>
-								<th>Direction</th>
-								<th>Side</th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
+                    <table id="alarmTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Device Type</th>
+                                <th>Device Id</th>
+                                <th>Entrance Id</th>
+                                <th>Entrance Name</th>
+                                <th>Direction</th>
+                                <th>Side</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
 
                     <h3>
                         Source Code
