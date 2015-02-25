@@ -73,18 +73,14 @@
                     // Create new div.
                     var div0 = $('<div>');
 
-                    //Dropdown list for causes.
+                    // Dropdown list for causes.
                     var elementDropDown = dropdown.clone();
-
                     div0.append(elementDropDown);
-
                     var elementTextBox = $('<input>');
                     elementTextBox.attr('class', 'form-control');
                     elementTextBox.attr('placeholder', 'Type in a description...');
                     elementTextBox.hide();
-
                     div0.append(elementTextBox);
-
                     row.append($('<td>').append(div0));
 
                     // Toggle visibility
@@ -92,6 +88,7 @@
                         if (this.checked) {
                             // Hide dropdown.
                             elementDropDown.hide();
+							
                             // Show textbox
                             elementTextBox.show();
                         } else {
@@ -106,25 +103,18 @@
 
                     // Create a button to register the alarm.
                     var elementButton = button.clone();
-
                     elementButton.click(function() {
-
                         // Get selected item.
                         var causeCode = elementDropDown.attr('value');
                         var causeDescription = elementTextBox.val();
-
                         if (causeDescription !== '') {
                             causeCode = causeDescription.toLowerCase().replace(/[ '"!@#$%^&*()+]+/g, '-');
-
                             console.log('Generated ID: ' + causeCode);
                         }
-
                         registerAlarm(session, alarm, causeCode, causeDescription);
                     });
 
                     row.append($('<td>').append(elementButton));
-
-
                     $('#alarmTable tbody').prepend(row);
                 }
 
@@ -157,7 +147,6 @@
                             // For custom causes you need to create a valid causeCode;
                             // It need to be lowercase and contain no spaces.
                             causeCode = causeDescription.toLowerCase().replace(/[ '"!@#$%^&*()+]+/g, '-');
-
                             console.log('Generated ID: ' + causeCode);
                         }
 
