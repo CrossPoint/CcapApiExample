@@ -283,12 +283,10 @@
                     Description
                 </h3>
                 <p>
-                    This example registers an alarm on the CrossCONNECT Acces Point with the call
-                    <strong>com.crosspoint.accesspoint.setalarmregistration</strong>.
-
+                    This example registers an alarm on the CrossCONNECT Acces Point with the call <strong>com.crosspoint.accesspoint.setalarmregistration</strong>.
                 </p>
                 <p>
-                    Also the events are registered for the <strong>com.crosspoint.accesspoint.tagdetectedrf</strong> and <strong>com.crosspoint.accesspoint.tagdetectedam</strong> events. When this event is raised the entrance is determined and the information is added to the alarm table.
+                    Also the events are registered for the <strong>com.crosspoint.accesspoint.tagdetectedrf</strong> and <strong>com.crosspoint.accesspoint.tagdetectedam</strong> events. When this event is raised the information is added to the alarm table and a cause for the alarm can be set. This cause is send back to the Access Point so the cause will be registered in Analytics.
                 </p>
                 <p>
                     Enter the ip-address or hostname of your Access Point in the top bar and press connect to run the example.
