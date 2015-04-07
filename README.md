@@ -2,9 +2,9 @@
 
 This application is build to show some basic options in the Cross Point Access Point API. The API is build on wamp. See  [http://www.wamp.ws](http://www.wamp.ws) for more information about the wamp protocol. 
 
-The endpoint to which you can connect to the CCAP is: **ws://ccap-ip-address:9000/**
+The endpoint to which you can connect to the CCAP API is: **ws://ccap-ip-address:9000/**
 
-(This will be changed to ws://<ccap-ip>/api/ in the future).
+(This will be changed to ws://ccap-ip-address/api/ in the future).
 
 # What to expect
 
@@ -15,6 +15,9 @@ Display the visitor counting data from the connected antennas in a graph. Listen
 
 ### alarms.html
 Loads the entrance configuration of the system and listens to new tag detected events. When an event is raised the information is written into a list with alarms. The entrance information for the device on which the alarm was raised is included.
+
+### alarmregistration.html
+When an alarm event is raised the information is written into a list with alarms. A reason can be selected and this reason will be send back to the CCAP so it can be processed in the CCAP reports.
 
 # Todo list
 
